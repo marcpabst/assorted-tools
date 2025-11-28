@@ -3,8 +3,8 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mne-xdf"
-version = "0.1.0"
+name = "mne_xdf"
+version = "0.2.0"
 description = "A Python library for importing XDF files for use with MNE-Python."
 authors = [{name = "M Pabst", email = "your.email@example.com"}]
 requires-python = ">=3.8"

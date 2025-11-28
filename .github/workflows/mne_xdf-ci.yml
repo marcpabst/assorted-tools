@@ -1,4 +1,4 @@
-name: MNE-XDF CI
+name: MNE_XDF CI
 
 on:
   workflow_dispatch:  # Run only when manually triggered
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./mne-xdf  # Set working directory to the mne-xdf subfolder
+        working-directory: ./mne_xdf  # Set working directory to the mne_xdf subfolder
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: ./mne-xdf/dist/  # Path to dist in the mne-xdf subfolder
+          path: ./mne_xdf/dist/  # Path to dist in the mne_xdf subfolder
           
   publish:
     needs: build
@@ -38,7 +38,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'  # Explicitly check for manual dispatch
     environment:
       name: pypi
-      url: https://pypi.org/p/mne-xdf
+      url: https://pypi.org/p/mne_xdf
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
       
