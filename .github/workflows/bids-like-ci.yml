@@ -1,0 +1,55 @@
+name: BIDS-like CI
+
+on:
+  workflow_dispatch:  # Run only when manually triggered
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bids-like  # Set working directory to the bids-like subfolder
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Using minimum required version
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+          
+      - name: Build package
+        run: python -m build
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ./bids-like/dist/  # Path to dist in the bids-like subfolder
+          
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'  # Explicitly check for manual dispatch
+    environment:
+      name: pypi
+      url: https://pypi.org/p/bids-like
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist/
+          
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
