@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: ./mne_xdf/dist/  # Path to dist in the mne_xdf subfolder
+          path: ./mne-xdf/dist/  # Path to dist in the mne_xdf subfolder
 
   publish:
     needs: build
