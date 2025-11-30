@@ -3,8 +3,8 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mne_xdf"
-version = "0.2.0"
+name = "mne-xdf"
+version = "0.3.0"
 description = "A Python library for importing XDF files for use with MNE-Python."
 authors = [{name = "M Pabst", email = "your.email@example.com"}]
 requires-python = ">=3.8"
@@ -14,3 +14,6 @@ dependencies = [
     "pyxdf>=1.17.0,<2",
     "scipy>=1.15.2,<2"
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]  # or specify your source directory
