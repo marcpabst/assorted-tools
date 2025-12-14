@@ -1,0 +1,18 @@
+[package]
+name = "lsl-recorder"
+version = "0.1.0"
+edition = "2024"
+# do not include this package in the workspace
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "lsl_recorder"
+crate-type = ["cdylib", "lib"]
+
+
+[dependencies]
+pyo3 = { version = "0.23.4", features = [
+    "extension-module",
+    "abi3-py38",
+    "multiple-pymethods",
+] }
