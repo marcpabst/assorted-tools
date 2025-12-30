@@ -293,7 +293,7 @@ class BIDSLayout:
             if '-' not in last_part:
                 entities['suffix'] = last_part
                 entity_parts = parts[:-1]
-            entity_parts = [name_without_ext]
+            entity_parts = parts
         else:
             entity_parts = [name_without_ext]
 
