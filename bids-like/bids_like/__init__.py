@@ -1,19 +1,48 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 
+# All BIDS entities in global order
+STANDARD_ENTITY_ORDER = ['sub', 'ses', 'sample', 'task', 'acq', 'ce', 'trc', 'stain', 'rec', 'dir', 'run', 'mod', 'echo', 'flip', 'inv', 'mt', 'part', 'proc', 'space', 'split', 'recording', 'chunk', 'seg', 'res', 'den', 'label', 'desc']
+
+# Map full entity names to their BIDS abbreviations
+ENTITY_ABBREVIATIONS = {
+    'subject': 'sub',
+    'session': 'ses',
+    'sample': 'sample',
+    'task': 'task',
+    'acquisition': 'acq',
+    'ce': 'ce',
+    'trc': 'trc',
+    'stain': 'stain',
+    'reconstruction': 'rec',
+    'direction': 'dir',
+    'run': 'run',
+    'modality': 'mod',
+    'echo': 'echo',
+    'flip': 'flip',
+    'inversion': 'inv',
+    'mt': 'mt',
+    'part': 'part',
+    'processing': 'proc',
+    'space': 'space',
+    'split': 'split',
+    'recording': 'recording',
+    'chunk': 'chunk',
+    'segment': 'seg',
+    'resolution': 'res',
+    'denoising': 'den',
+    'label': 'label',
+    'description': 'desc',
+}
+
+
+
+
 class BIDSPath:
     """
     A class representing a BIDS file path with its entities.
     Supports both standard and non-standard BIDS entities.
     """
-
-    # Standard BIDS entity order for file naming
-    STANDARD_ENTITY_ORDER = [
-        'subject', 'session', 'task', 'acquisition', 'ceagent', 'reconstruction',
-        'direction', 'run', 'modality', 'echo', 'flip', 'inversion', 'mt',
-        'part', 'processing', 'space', 'split', 'recording', 'chunk', 'atlas',
-        'resolution', 'density', 'label', 'description'
-    ]
 
     def __init__(self, root: Optional[Union[str, Path]] = None, **entities):
         """
@@ -130,35 +159,39 @@ class BIDSPath:
 
     def _build_filename(self) -> str:
         """Build filename from entities."""
-        filename_parts = []
+        parts = []
 
-        # Add standard entities in order
-        for entity in self.STANDARD_ENTITY_ORDER:
-            if entity in self.entities:
-                formatted_entity = self._format_entity_value(entity, self.entities[entity])
-                filename_parts.append(formatted_entity)
+        # Process entities in BIDS standard order
+        for entity in STANDARD_ENTITY_ORDER:
+            entity_key = ENTITY_ABBREVIATIONS.get(entity, entity)
+            # Check if the entity exists in our entities dictionary
+            if entity_key in self.entities:
+                value = self.entities[entity_key]
+                # Format the entity-value pair
+                formatted_entity = self._format_entity_value(entity_key, value)
+                parts.append(formatted_entity)
 
-        # Add non-standard entities (sorted for consistency)
-        non_standard_entities = {k: v for k, v in self.entities.items()
-                               if k not in self.STANDARD_ENTITY_ORDER
-                               and k not in ['suffix', 'extension', 'datatype']}
+        # Handle any non-standard entities
+        for key in self.entities:
+            if key not in STANDARD_ENTITY_ORDER and key not in ['suffix', 'extension', 'subject', 'session', 'run']:
+                value = self.entities[key]
+                formatted_entity = self._format_entity_value(key, value)
+                parts.append(formatted_entity)
 
-        for entity in sorted(non_standard_entities.keys()):
-            formatted_entity = self._format_entity_value(entity, non_standard_entities[entity])
-            filename_parts.append(formatted_entity)
-
-        # Add suffix
+        # Add suffix if it exists
         if 'suffix' in self.entities:
-            filename_parts.append(self.entities['suffix'])
+            parts.append(self.entities['suffix'])
 
-        # Combine filename parts
-        filename = '_'.join(filename_parts)
+        # Join all parts with underscores
+        filename = '_'.join(parts)
 
-        # Add extension
+        # Add extension if it exists
         if 'extension' in self.entities:
             filename += self.entities['extension']
 
         return filename
+
+
 
     def _build_directory_path(self) -> Path:
         """Build directory path from entities."""
@@ -255,8 +288,12 @@ class BIDSLayout:
         # Extract suffix (last part after final underscore)
         if '_' in name_without_ext:
             parts = name_without_ext.split('_')
-            entities['suffix'] = parts[-1]
-            entity_parts = parts[:-1]
+            last_part = parts[-1]
+            # make sure that the last part is not an entity (i.e., does not contain '-')
+            if '-' not in last_part:
+                entities['suffix'] = last_part
+                entity_parts = parts[:-1]
+            entity_parts = [name_without_ext]
         else:
             entity_parts = [name_without_ext]
 
@@ -444,11 +481,33 @@ class BIDSLayout:
         if not subject_dir.exists():
             return list(sessions)
 
-        for session_dir in subject_dir.iterdir():
-            if session_dir.is_dir() and session_dir.name.startswith('ses-'):
-                session_id = session_dir.name[4:]
-                sessions.add(session_id)
+        # Recursively find all files in the subject directory
+        for file_path in subject_dir.rglob('*'):
+            if file_path.is_file():
+                # Extract entities from the file path
+                bids_path = self._path_to_bidspath(file_path)
+
+                # Check if this file belongs to the specified subject and has a session
+                if (bids_path.entities.get('subject') == subject and
+                    'session' in bids_path.entities):
+                    sessions.add(bids_path.entities['session'])
+
         return sorted(sessions)
+
+    def find_subjects_sessions(self) -> Dict[str, List[str]]:
+        """
+        Find all subjects and their sessions in the BIDS layout.
+
+        Returns:
+            Dictionary mapping subject IDs to lists of session IDs
+        """
+        subjects_sessions = {}
+
+        for subject in self.find_subjects():
+            sessions = self.find_sessions(subject)
+            subjects_sessions[subject] = sessions
+
+        return subjects_sessions
 
 
 # Convenience function for backward compatibility
