@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bids-like"
-version = "0.7.0"
+version = "0.8.0"
 description = "A lightweight Python library for handling BIDS-like datasets. They do not need to strictly follow the BIDS specification, but they should have a similar folder and file structure. All valid BIDS datasets are valid BIDS-like datasets."
 authors = [{name = "M Pabst", email = "your.email@example.com"}]
 requires-python = ">=3.8"

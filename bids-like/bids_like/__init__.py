@@ -173,7 +173,7 @@ class BIDSPath:
 
         # Handle any non-standard entities
         for key in self.entities:
-            if key not in STANDARD_ENTITY_ORDER and key not in ['suffix', 'extension', 'subject', 'session', 'run']:
+            if key not in STANDARD_ENTITY_ORDER and key not in ['suffix', 'extension', 'subject', 'session', 'run', 'datatype']:
                 value = self.entities[key]
                 formatted_entity = self._format_entity_value(key, value)
                 parts.append(formatted_entity)
