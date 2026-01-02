@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 
-# All BIDS entities in global order
-STANDARD_ENTITY_ORDER = ['sub', 'ses', 'sample', 'task', 'acq', 'ce', 'trc', 'stain', 'rec', 'dir', 'run', 'mod', 'echo', 'flip', 'inv', 'mt', 'part', 'proc', 'space', 'split', 'recording', 'chunk', 'seg', 'res', 'den', 'label', 'desc']
+# # All BIDS entities in global order
+# STANDARD_ENTITY_ORDER = ['sub', 'ses', 'sample', 'task', 'acq', 'ce', 'trc', 'stain', 'rec', 'dir', 'run', 'mod', 'echo', 'flip', 'inv', 'mt', 'part', 'proc', 'space', 'split', 'recording', 'chunk', 'seg', 'res', 'den', 'label', 'desc']
 
 # Map full entity names to their BIDS abbreviations
 ENTITY_ABBREVIATIONS = {
@@ -35,7 +35,7 @@ ENTITY_ABBREVIATIONS = {
     'description': 'desc',
 }
 
-
+STANDARD_ENTITY_ORDER = ['subject', 'session', 'sample', 'task', 'acquisition', 'ce', 'trc', 'stain', 'reconstruction', 'direction', 'run', 'modality', 'echo', 'flip', 'inversion', 'mt', 'part', 'processing', 'space', 'split', 'recording', 'chunk', 'segment', 'resolution', 'denoising',  'label', 'description']
 
 
 class BIDSPath:
@@ -165,8 +165,8 @@ class BIDSPath:
         for entity in STANDARD_ENTITY_ORDER:
             entity_key = ENTITY_ABBREVIATIONS.get(entity, entity)
             # Check if the entity exists in our entities dictionary
-            if entity_key in self.entities:
-                value = self.entities[entity_key]
+            if entity in self.entities:
+                value = self.entities[entity]
                 # Format the entity-value pair
                 formatted_entity = self._format_entity_value(entity_key, value)
                 parts.append(formatted_entity)
